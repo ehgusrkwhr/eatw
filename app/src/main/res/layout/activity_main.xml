@@ -4,14 +4,63 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  tools:context=".MainActivity">
+  tools:context=".presenter.ui.home.MainActivity">
   <TextView
+    android:id="@+id/tv_address"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Hello World!"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
+    android:text="@string/address"
+    android:layout_marginTop="20dp"
+    android:layout_marginStart="20dp"
+    android:textSize="30dp"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
+  <TextView
+    android:id="@+id/tv_poll"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:text=""
+    android:textAlignment="center"
+    android:textSize="14dp"
+    app:layout_constraintBottom_toBottomOf="@+id/custom_progress"
+    app:layout_constraintEnd_toStartOf="@+id/guide_right"
+    app:layout_constraintStart_toStartOf="@+id/guide_left"
+    app:layout_constraintTop_toTopOf="@+id/custom_progress" />
 
+  <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guide_left"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.15" />
+
+
+  <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guide_center"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.5" />
+
+  <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guide_right"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.85" />
+
+  <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guide_top"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.1" />
+
+  <com.kdh.eatwd.presenter.ui.custom.CustomCircleProgressBar
+    android:id="@+id/custom_progress"
+    android:layout_width="200dp"
+    android:layout_height="200dp"
+    app:layout_constraintEnd_toStartOf="@+id/guide_right"
+    app:layout_constraintStart_toStartOf="@+id/guide_left"
+    app:layout_constraintTop_toBottomOf="@+id/guide_top" />
 </androidx.constraintlayout.widget.ConstraintLayout>
