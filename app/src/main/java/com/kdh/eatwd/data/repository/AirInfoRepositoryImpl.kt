@@ -13,15 +13,13 @@ class AirInfoRepositoryImpl @Inject constructor(
     private val airStatusService: AirStatusService
 ) : AirInfoRepository {
 
-//    override suspend fun getAirInfo(lat: String, log: String): ApiStates<AirStatusResponse> =
-//        apiCall {
-//            airStatusService.getAirQualityData(lat, log, AirStatusService.API_KEY)
-//        }
-
-
-    override suspend fun getAirInfo(lat: String, log: String): Flow<ApiStates<AirStatusResponse>> {
+    override suspend fun getAirInfo(lat: Double, log: Double): Flow<ApiStates<AirStatusResponse>> {
         return flow {
-            airStatusService.getAirQualityData(lat, log, AirStatusService.API_KEY).apply {
+            airStatusService.getAirQualityData(
+                lat.toString(),
+                log.toString(),
+                AirStatusService.API_KEY
+            ).apply {
                 this.onSuccessSuspend {
                     data?.let {
                         emit(ApiStates.success(it))
@@ -38,15 +36,6 @@ class AirInfoRepositoryImpl @Inject constructor(
             }
         }
     }
-
-
-//    override suspend fun getAirInfo(lat: String, log: String): Flow<ApiStates<AirStatusResponse>> {
-//        return flow {
-//            apiCall {
-//                airStatusService.getAirQualityData(lat, log, AirStatusService.API_KEY)
-//            }
-//        }
-//    }
 
 
 }

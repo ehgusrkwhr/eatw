@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface AirInfoRepository {
 
-    suspend fun getAirInfo(lat : String,log :String) : Flow<ApiStates<AirStatusResponse>>
+    suspend fun getAirInfo(lat : Double,log :Double) : Flow<ApiStates<AirStatusResponse>>
 //suspend fun getAirInfo(lat : String,log :String) : ApiStates<AirStatusResponse>
 }

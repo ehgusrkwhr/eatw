@@ -6,6 +6,6 @@ import javax.inject.Inject
 class AirInfoUseCase @Inject constructor(
     private val repository: AirInfoRepository
 ) {
-    suspend operator fun invoke(lat: String, log: String) =
+    suspend operator fun invoke(lat: Double, log: Double) =
         repository.getAirInfo(lat, log)
 }

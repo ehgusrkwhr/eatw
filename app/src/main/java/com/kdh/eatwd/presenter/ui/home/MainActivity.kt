@@ -1,18 +1,23 @@
 package com.kdh.eatwd.presenter.ui.home
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.kdh.eatwd.databinding.ActivityMainBinding
 import com.kdh.eatwd.presenter.util.LocationUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,36 +34,68 @@ class MainActivity : AppCompatActivity() {
     )
     private val PERMISSION_CODE = 100
     private var requestPermissionLauncher: ActivityResultLauncher<Array<String>>? = null
+    private var swipeRefreshLayout : SwipeRefreshLayout? = null
     lateinit var locationUtil: LocationUtil
 
     // 위도와 경도를 저장
     var latitude: Double = 0.0
     var longitude: Double = 0.0
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-//        binding.btn1.setOnClickListener {
-//            viewModel.getAirInfo("40", "40")
-//        }
         initView()
         isPermissions()
         setObserver()
+        setEvent()
     }
+
 
     private fun initView() {
         locationUtil = LocationUtil(this@MainActivity)
-        locationUtil.g
-        viewModel.getAirInfo("40", "40")
+        //초기값이면 업데이트
+        if (latitude == 0.0 || longitude == 0.0) {
+            latitude = locationUtil.getLocationLatitude()
+            longitude = locationUtil.getLocationLongitude()
+        }
+
+        if (latitude != 0.0 && longitude != 0.0) {
+            val address = locationUtil.getCurrentAddress(latitude, longitude)
+            with(binding) {
+                val addressBox = arrayOfNulls<String>(3)
+                addressBox[0] = address?.thoroughfare ?: "두두 3동"
+                addressBox[1] = address?.countryName ?: "수리남"
+                addressBox[2] = address?.adminArea ?: "침산동"
+                val result = addressBox[1] + "\t" + addressBox[2] + "\n" + addressBox[0]
+                tvAddress.text = result
+            }
+            fetchApiEventData()
+        }
     }
+
+    private fun setEvent(){
+        binding.layoutRefresh.setOnRefreshListener {
+            //딜레이 3초
+            initView()
+            binding.layoutRefresh.isRefreshing = false
+        }
+    }
+
+    private fun fetchApiEventData() {
+        viewModel.getAirInfo(latitude, longitude)
+        viewModel.fetchWeatherInfo(latitude, longitude)
+    }
+
 
     private fun setObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.airInfo.collect { pollution ->
-                    binding.tvPoll.text = pollution?.aqius.toString()
+                    val pollCount = pollution?.aqius ?: 0
+                    binding.tvPoll.text = pollCount.toString()
+                    binding.customProgress.setPollCount(pollCount)
                 }
             }
         }

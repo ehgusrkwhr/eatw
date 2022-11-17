@@ -3,30 +3,38 @@ package com.kdh.eatwd.presenter.util
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
+import android.location.*
+import android.util.Log
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import java.util.*
 
-class LocationUtil(private val context: Context) {
+class LocationUtil(private val context: Context) : LocationListener {
 
     //Location Manager는 시스템 위치 서비스에 접근을 제공하는 클래스.
-    private val locationManager: LocationManager =
-        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private var locationManager: LocationManager? = null
 
     //Location 클래스는 위도, 경도, 고도와 같이 위치에 관련된 정보를 가지고 있는 데이터 클래스.
     private var location: Location? = null
+    private val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10F
+    private val MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong()
+
+    init{
+        fetchLocationInfo()
+    }
 
     private fun fetchLocationInfo(): Location? {
         try {
+            locationManager =context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             var gpsLocation: Location? = null
             var networkLocation: Location? = null
 
             val isGPSEnabled: Boolean =
-                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)
             val isNetworkEnabled: Boolean =
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
-            if (!isGPSEnabled && !isNetworkEnabled) {
+            if (!isGPSEnabled && !isNetworkEnabled) {  
                 return null
             } else {
                 val hasFineLocationPermission = ContextCompat.checkSelfPermission(
@@ -43,22 +51,24 @@ class LocationUtil(private val context: Context) {
                 ) return null
 
                 if (isGPSEnabled) {
-                    gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+//                    locationManager?.requestLocationUpdates()
+                    locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                    gpsLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 }
                 if (isNetworkEnabled) {
-                    networkLocation =
-                        locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                    locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                    networkLocation = locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
                 }
 
                 if (gpsLocation != null && networkLocation != null) {
-                    return if (gpsLocation.accuracy > networkLocation.accuracy) {
-                        gpsLocation
+                    if (gpsLocation.accuracy > networkLocation.accuracy) {
+                        location = gpsLocation
                     } else {
-                        networkLocation
+                        location = networkLocation
                     }
                 }else{
-                    if(gpsLocation != null) return gpsLocation
-                    if(networkLocation != null) return networkLocation
+                    if(gpsLocation != null) location = gpsLocation
+                    if(networkLocation != null) location = networkLocation
                 }
 
             }
@@ -67,7 +77,20 @@ class LocationUtil(private val context: Context) {
         } catch (e: Exception) {
 
         }
-        return null
+        return location
+    }
+
+    fun getCurrentAddress(latitude : Double,longitude : Double) : Address? {
+        val geocoder = Geocoder(context, Locale.getDefault())
+
+        val addresses : List<Address> = geocoder.getFromLocation(latitude,longitude,10)
+
+        if(addresses.isEmpty()){
+            Toast.makeText(context,"해당 위치에 주소가 없습니다.",Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        return addresses[0]
     }
 
     fun getLocationLatitude() : Double{
@@ -76,6 +99,10 @@ class LocationUtil(private val context: Context) {
 
     fun getLocationLongitude() : Double{
         return location?.longitude ?: 0.0
+    }
+
+    override fun onLocationChanged(location: Location) {
+        Log.d("dodo55 ","onLocationChanged")
     }
 
 }
