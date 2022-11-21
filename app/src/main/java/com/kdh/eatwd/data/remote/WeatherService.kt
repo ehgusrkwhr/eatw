@@ -16,10 +16,18 @@ interface WeatherService {
 //    @GET("nearest_city")
 //    fun getAirQualityData(@Query("lat") lat : String, @Query("lon") lon : String, @Query("key") key : String ) : ApiResponse<AirStatusResponse>
 
+//    @GET("forecast")
+//    suspend fun getWeatherData(
+//        @Query("lat") lat: String,
+//        @Query("lon") lon: String,
+//        @Query("appid") key: String,
+//        @Query("lang") lang: String
+//    ): ApiResponse<WeatherInfoResponse>
+
     @GET("forecast")
     suspend fun getWeatherData(
-        @Query("lat") lat: String,
-        @Query("lon") lon: String,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
         @Query("appid") key: String,
         @Query("lang") lang: String
     ): ApiResponse<WeatherInfoResponse>

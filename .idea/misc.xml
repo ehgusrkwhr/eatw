@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/background_splash_screen.xml" value="0.286" />
         <entry key="app/src/main/res/drawable/bg_gradient.xml" value="0.2065" />
         <entry key="app/src/main/res/drawable/progress_bar_status.xml" value="0.2125" />
         <entry key="app/src/main/res/drawable/progress_home_status.xml" value="0.2125" />

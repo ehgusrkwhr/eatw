@@ -1,11 +1,9 @@
 package com.kdh.eatwd.presenter.ui.home
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -34,20 +33,23 @@ class MainActivity : AppCompatActivity() {
     )
     private val PERMISSION_CODE = 100
     private var requestPermissionLauncher: ActivityResultLauncher<Array<String>>? = null
-    private var swipeRefreshLayout : SwipeRefreshLayout? = null
+    private var swipeRefreshLayout: SwipeRefreshLayout? = null
     lateinit var locationUtil: LocationUtil
 
     // 위도와 경도를 저장
-    var latitude: Double = 0.0
-    var longitude: Double = 0.0
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
+
+    private lateinit var weatherAdapter: WeatherItemAdapter
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        initView()
         isPermissions()
+        setWeatherAdapter()
+        initView()
         setObserver()
         setEvent()
     }
@@ -71,15 +73,25 @@ class MainActivity : AppCompatActivity() {
                 val result = addressBox[1] + "\t" + addressBox[2] + "\n" + addressBox[0]
                 tvAddress.text = result
             }
-            fetchApiEventData()
+//            initApiCall()
         }
     }
 
-    private fun setEvent(){
-        binding.layoutRefresh.setOnRefreshListener {
-            //딜레이 3초
-            initView()
-            binding.layoutRefresh.isRefreshing = false
+    private fun initApiCall() {
+        fetchApiEventData()
+    }
+
+    private fun setEvent() {
+        with(binding) {
+            scrollView.viewTreeObserver.addOnScrollChangedListener {
+                layoutRefresh.isEnabled = scrollView.scrollY == 0
+            }
+            layoutRefresh.setOnRefreshListener {
+                //딜레이 3초
+                initView()
+                layoutRefresh.isRefreshing = false
+            }
+
         }
     }
 
@@ -90,15 +102,45 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setObserver() {
+
+        initApiCall()
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.airInfo.collect { pollution ->
-                    val pollCount = pollution?.aqius ?: 0
-                    binding.tvPoll.text = pollCount.toString()
-                    binding.customProgress.setPollCount(pollCount)
-                }
+            viewModel.airInfo.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect{ pollution ->
+                val pollCount = pollution?.aqius ?: 0
+                binding.tvPoll.text = pollCount.toString()
+                binding.customProgress.setPollCount(pollCount)
             }
         }
+
+        lifecycleScope.launch {
+            viewModel.weatherInfo.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect{ weatherInfo ->
+                weatherAdapter.submitList(weatherInfo)
+            }
+        }
+
+
+
+
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.airInfo.collect { pollution ->
+//                    val pollCount = pollution?.aqius ?: 0
+//                    binding.tvPoll.text = pollCount.toString()
+//                    binding.customProgress.setPollCount(pollCount)
+//                }
+//            }
+//
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.weatherInfo.collect { weatherInfo ->
+//                    weatherAdapter.submitList(weatherInfo)
+//                }
+//            }
+//        }
+    }
+
+    private fun setWeatherAdapter() {
+        weatherAdapter = WeatherItemAdapter()
+        binding.rvWeatherInfo.adapter = weatherAdapter
     }
 
     private fun isPermissions() {
