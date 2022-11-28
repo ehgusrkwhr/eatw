@@ -8,41 +8,48 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.kdh.eatwd.R
 import com.kdh.eatwd.data.entity.WeatherInfoResponse
 import com.kdh.eatwd.databinding.ItemDaysInfoBinding
+import com.kdh.eatwd.presenter.util.convertKelvinToCelsius
+import com.kdh.eatwd.presenter.util.getDayOfWeek
 
 class WeatherItemAdapter :
-    ListAdapter<WeatherInfoResponse.WeatherDetail, WeatherItemAdapter.WeatherItemViewHolder>(WeatherDiffCallback()) {
+    ListAdapter<WeatherInfoResponse.WeatherDetail, WeatherItemAdapter.WeatherItemViewHolder>(
+        WeatherDiffCallback()
+    ) {
     lateinit var mContext: Context
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-        Log.d("dodo55 ","onAttachedToRecyclerView")
         mContext = recyclerView.context
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherItemViewHolder {
-        Log.d("dodo55 ","onCreateViewHolder")
         val binding =
             ItemDaysInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return WeatherItemViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: WeatherItemViewHolder, position: Int) {
-        Log.d("dodo55 ","onBindViewHolder")
         holder.bind(getItem(position))
     }
 
     inner class WeatherItemViewHolder(private val binding: ItemDaysInfoBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(weatherInfoResponse: WeatherInfoResponse.WeatherDetail) {
-//            weatherInfoResponse.dt_txt
-            Log.d("dodo55 ","WeatherItemViewHolder.dt_txt ${weatherInfoResponse.dt_txt}")
-            binding.tvDayTitle.text = weatherInfoResponse.dt_txt
-            binding.tvMinTemperature.text = weatherInfoResponse.main.temp_min.toString()
-            binding.tvMaxTemperature.text =weatherInfoResponse.main.temp_max.toString()
-            Glide.with(mContext).load("http://openweathermap.org/img/wn/10d@2x.png").into(binding.ivDayImage)
-//            binding.pbAvgTemperature = ""
+//            binding.tvDayTitle.text = weatherInfoResponse.dt_txt
+            binding.tvDayTitle.text = getDayOfWeek(weatherInfoResponse.dt_txt.split(" ")[0])
+            binding.tvMinTemperature.text =
+                convertKelvinToCelsius(weatherInfoResponse.main.temp_min).toString()
+            binding.tvMaxTemperature.text =
+                convertKelvinToCelsius(weatherInfoResponse.main.temp_max).toString()
+            Glide.with(mContext).load(
+                binding.ivDayImage.context.getString(
+                    R.string.weather_middle_image_url,
+                    weatherInfoResponse.weather[0].icon
+                )
+            ).into(binding.ivDayImage)
 
         }
     }

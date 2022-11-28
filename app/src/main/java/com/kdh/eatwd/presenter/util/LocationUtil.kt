@@ -80,7 +80,7 @@ class LocationUtil(private val context: Context) : LocationListener {
         return location
     }
 
-    fun getCurrentAddress(latitude : Double,longitude : Double) : Address? {
+    fun getCurrentAddress(context : Context,latitude : Double,longitude : Double) : Address? {
         val geocoder = Geocoder(context, Locale.getDefault())
 
         val addresses : List<Address> = geocoder.getFromLocation(latitude,longitude,10)

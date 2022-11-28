@@ -1,7 +1,8 @@
 package com.kdh.eatwd.data.entity
 
 import com.google.gson.annotations.SerializedName
-import kotlinx.serialization.Serializable
+import com.kdh.eatwd.presenter.util.Constants
+
 
 
 data class WeatherInfoResponse(
@@ -9,8 +10,18 @@ data class WeatherInfoResponse(
     val cnt: Int,
     val cod: String,
     @SerializedName("list") val list: List<WeatherDetail>,
-    val message: Int
+    val message: Int,
+    var dayList : List<DayInfo>
 ) {
+
+    data class DayInfo(
+        var day : String,
+        var icon : String,
+        var tempMin : Double,
+        var tempMax : Double
+//        val tempMinOrMax : List<Pair<Double,Double>>
+    )
+
     data class City(
         val coord: Coord,
         val country: String,
@@ -49,9 +60,10 @@ data class WeatherInfoResponse(
             val sea_level: Int,
             val temp: Double,
             val temp_kf: Double,
-            val temp_max: Double,
-            val temp_min: Double
+            var temp_max: Double,
+            var temp_min: Double
         )
+
         data class Sys(
             val pod: String
         )

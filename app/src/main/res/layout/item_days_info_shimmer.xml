@@ -1,48 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
+  android:layout_height="100dp"
   android:orientation="horizontal"
   xmlns:tools="http://schemas.android.com/tools">
 
   <TextView
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
-    style="@style/TextMedium.Bold.Center.White"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    style="@style/TextMedium.Bold.Center"
     android:id="@+id/tv_day_title"
     android:layout_weight="1"
     android:layout_width="0dp"
     android:layout_gravity="center"
+    android:background="@color/cardview_shadow_start_color"
     android:layout_height="wrap_content"
-    tools:text="금ddd"
+    tools:text=""
     />
 
-  <ImageView
+  <TextView
+    android:background="@color/cardview_shadow_start_color"
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
     android:id="@+id/iv_day_image"
     android:layout_weight="1"
     android:layout_width="0dp"
+    android:layout_gravity="center"
     android:layout_height="wrap_content"
-    android:src="@drawable/ic_launcher_foreground"
-    android:contentDescription="테스트" />
+/>
 
   <TextView
+    android:background="@color/cardview_shadow_start_color"
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
-    style="@style/TextMedium.Bold.Center.White"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    style="@style/TextMedium.Bold.Center"
     android:id="@+id/tv_min_temperature"
     android:layout_gravity="center"
-    tools:text="4도"
     android:layout_weight="1"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     />
 
   <ProgressBar
-    android:indeterminate="false"
+    android:background="@color/cardview_shadow_start_color"
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
     android:id="@+id/pb_avg_temperature"
     android:layout_gravity="center"
     android:layout_weight="2"
@@ -51,12 +61,15 @@
     />
 
   <TextView
+    android:background="@color/cardview_shadow_start_color"
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
-    style="@style/TextMedium.Bold.Center.White"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    style="@style/TextMedium.Bold.Center"
     android:id="@+id/tv_max_temperature"
     android:layout_gravity="center"
-    tools:text="17도"
+
     android:layout_weight="1"
     android:layout_width="0dp"
     android:layout_height="wrap_content"

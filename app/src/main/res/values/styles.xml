@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <style name="TextMedium.Bold" parent="TextAppearance.AppCompat.Medium">
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="TextMedium.Bold.Center">
+    <item name="android:textAlignment">center</item>
+  </style>
+
+  <style name="TextMedium.Bold.Center.White">
+    <item name="android:textColor">@color/white</item>
+  </style>
+
+  <style name="TextAppearance.AppCompat.Small.Bold" parent="Base.TextAppearance.AppCompat.Small">
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="TextAppearance.AppCompat.Small.Bold.Center">
+    <item name="android:textAlignment">center</item>
+  </style>
+
+  <style name="TextAppearance.AppCompat.Small.Bold.Center.White">
+    <item name="android:textColor">@color/white</item>
+  </style>
+
+
+  <style name="TextAppearance.AppCompat.Large.Bold" parent="Base.TextAppearance.AppCompat.Large">
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="TextAppearance.AppCompat.Large.Bold.Center" >
+    <item name="android:textAlignment">center</item>
+  </style>
+
+  <style name="TextAppearance.AppCompat.Large.Bold.Center.White" >
+    <item name="android:textColor">@color/white</item>
+  </style>
+
+  <style name="TextAppearance.AppCompat.Large.Bold.White" >
+    <item name="android:textColor">@color/white</item>
+  </style>
+
+</resources>

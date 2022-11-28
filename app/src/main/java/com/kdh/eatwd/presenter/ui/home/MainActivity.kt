@@ -2,9 +2,11 @@ package com.kdh.eatwd.presenter.ui.home
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -15,8 +17,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
+import com.kdh.eatwd.R
 import com.kdh.eatwd.databinding.ActivityMainBinding
 import com.kdh.eatwd.presenter.util.LocationUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +45,8 @@ class MainActivity : AppCompatActivity() {
     private var longitude: Double = 0.0
 
     private lateinit var weatherAdapter: WeatherItemAdapter
+    private lateinit var weatherDayAdapter: WeatherDayItemAdapter
+//    private lateinit var concatAdapter: ConcatAdapter
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +62,36 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initView() {
+        initAds()
+        initProgressBar()
+        initLocation()
+
+    }
+
+    private fun initProgressBar() {
+        // progress init
+        binding.customProgress.apply {
+            progressMax = 200f
+            progressBarColor = resources.getColor(R.color.dark_blue)
+            progressBarColorStart = resources.getColor(R.color.pink_red)
+            progressBarColorEnd = Color.WHITE
+            roundBorder = true
+            startAngle = 0.0f
+            progressBarWidth = 7f // in DP
+            backgroundProgressBarWidth = 3f // in DP
+//            progress = 0.1f
+//            setProgressWithAnimation(0.1f, 4000) // =1s
+
+        }
+    }
+
+    private fun initAds(){
+        MobileAds.initialize(this)
+        binding.adView.loadAd(AdRequest.Builder().build())
+    }
+
+    private fun initLocation() {
+        //location init
         locationUtil = LocationUtil(this@MainActivity)
         //초기값이면 업데이트
         if (latitude == 0.0 || longitude == 0.0) {
@@ -64,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (latitude != 0.0 && longitude != 0.0) {
-            val address = locationUtil.getCurrentAddress(latitude, longitude)
+            val address = locationUtil.getCurrentAddress(this, latitude, longitude)
             with(binding) {
                 val addressBox = arrayOfNulls<String>(3)
                 addressBox[0] = address?.thoroughfare ?: "두두 3동"
@@ -73,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                 val result = addressBox[1] + "\t" + addressBox[2] + "\n" + addressBox[0]
                 tvAddress.text = result
             }
-//            initApiCall()
+            initApiCall()
         }
     }
 
@@ -103,44 +139,54 @@ class MainActivity : AppCompatActivity() {
 
     private fun setObserver() {
 
-        initApiCall()
         lifecycleScope.launch {
-            viewModel.airInfo.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect{ pollution ->
-                val pollCount = pollution?.aqius ?: 0
-                binding.tvPoll.text = pollCount.toString()
-                binding.customProgress.setPollCount(pollCount)
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.weatherInfo.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect{ weatherInfo ->
-                weatherAdapter.submitList(weatherInfo)
-            }
-        }
-
-
-
-
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.airInfo.collect { pollution ->
-//                    val pollCount = pollution?.aqius ?: 0
-//                    binding.tvPoll.text = pollCount.toString()
+            viewModel.airInfo.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { pollution ->
+                    val pollCount = pollution?.aqius ?: 0
+                    binding.tvPoll.text = pollCount.toString()
+                    Log.d("dodo55 ", "pollCount.toFloat() : $pollCount.toFloat()")
+                    binding.customProgress.progress = pollCount.toFloat()
 //                    binding.customProgress.setPollCount(pollCount)
-//                }
-//            }
-//
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.weatherInfo.collect { weatherInfo ->
-//                    weatherAdapter.submitList(weatherInfo)
-//                }
-//            }
-//        }
+
+                }
+        }
+
+        lifecycleScope.launch {
+            viewModel.weatherInfo.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { weatherInfo ->
+                    weatherAdapter.submitList(weatherInfo)
+                    weatherDayAdapter.submitList(weatherInfo)
+                }
+        }
+
+        lifecycleScope.launch {
+            viewModel.loadingFlag.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { flag ->
+                    with(binding) {
+                        if (flag) {
+                            rvWeatherInfoShimmer.startShimmer()
+                            rvWeatherInfoShimmer.visibility = View.VISIBLE
+                            rvWeatherInfo.visibility = View.GONE
+                        } else {
+                            rvWeatherInfoShimmer.stopShimmer()
+                            rvWeatherInfoShimmer.visibility = View.GONE
+                            rvWeatherInfo.visibility = View.VISIBLE
+                        }
+                    }
+                }
+        }
+
     }
 
     private fun setWeatherAdapter() {
         weatherAdapter = WeatherItemAdapter()
+        weatherDayAdapter = WeatherDayItemAdapter()
+//        concatAdapter = ConcatAdapter()
+//        concatAdapter.addAdapter(weatherDayAdapter)
+//        concatAdapter.addAdapter(weatherAdapter)
         binding.rvWeatherInfo.adapter = weatherAdapter
+        binding.rvWeatherDayInfo.adapter = weatherDayAdapter
+
     }
 
     private fun isPermissions() {

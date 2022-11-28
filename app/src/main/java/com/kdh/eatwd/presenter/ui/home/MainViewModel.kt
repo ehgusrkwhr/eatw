@@ -26,8 +26,12 @@ class MainViewModel @Inject constructor(
 //    private var _weatherInfo: MutableStateFlow<List<WeatherInfoResponse.WeatherDetail?>?> = MutableStateFlow(null)
 //    val weatherInfo = _weatherInfo.asStateFlow()
 
-    private var _weatherInfo: MutableStateFlow<List<WeatherInfoResponse.WeatherDetail?>?> = MutableStateFlow(null)
+    private var _weatherInfo: MutableStateFlow<List<WeatherInfoResponse.WeatherDetail?>?> =
+        MutableStateFlow(null)
     val weatherInfo = _weatherInfo.asStateFlow()
+
+    private val _loadingFlag: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val loadingFlag = _loadingFlag.asStateFlow()
 
     fun getAirInfo(lat: Double, log: Double) {
         viewModelScope.launch {
@@ -45,11 +49,13 @@ class MainViewModel @Inject constructor(
     }
 
     fun fetchWeatherInfo(lat: Double, log: Double) {
+        _loadingFlag.value = true
         viewModelScope.launch {
             weatherUseCase.fetchWeatherInfo(lat, log).collect { apiState ->
                 when (apiState) {
                     is ApiStates.Success -> {
                         _weatherInfo.value = apiState.data.list
+                        _loadingFlag.value = false
                         Log.d(TAG, "apiState.data.list : ${apiState.data.list}");
                     }
                     is ApiStates.Error -> {
