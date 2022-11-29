@@ -17,11 +17,16 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.kdh.eatwd.R
 import com.kdh.eatwd.databinding.ActivityMainBinding
+import com.kdh.eatwd.presenter.util.Constants.AFTER_TOMORROW_KEY
+import com.kdh.eatwd.presenter.util.Constants.TOMORROW_KEY
 import com.kdh.eatwd.presenter.util.LocationUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -45,8 +50,15 @@ class MainActivity : AppCompatActivity() {
     private var longitude: Double = 0.0
 
     private lateinit var weatherAdapter: WeatherItemAdapter
-    private lateinit var weatherDayAdapter: WeatherDayItemAdapter
-//    private lateinit var concatAdapter: ConcatAdapter
+    private lateinit var weatherDayItemAdapter: WeatherDayItemAdapter
+    private lateinit var weatherDayTitleAdapter: WeatherDayTitleAdapter
+    private lateinit var concatAdapter: ConcatAdapter
+
+        private var positionMap = mutableMapOf<String,Int>()
+//    private var positionMap: MutableMap<String, Int> by lazy {
+//        positionMap.put(TOMORROW_KEY, 0)
+//        positionMap.put(AFTER_TOMORROW_KEY, 0)
+//    }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         isPermissions()
-        setWeatherAdapter()
+//        setWeatherAdapter()
         initView()
         setObserver()
         setEvent()
@@ -65,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         initAds()
         initProgressBar()
         initLocation()
+        setWeatherAdapter()
 
     }
 
@@ -85,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initAds(){
+    private fun initAds() {
         MobileAds.initialize(this)
         binding.adView.loadAd(AdRequest.Builder().build())
     }
@@ -155,7 +168,20 @@ class MainActivity : AppCompatActivity() {
             viewModel.weatherInfo.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .collect { weatherInfo ->
                     weatherAdapter.submitList(weatherInfo)
-                    weatherDayAdapter.submitList(weatherInfo)
+                }
+        }
+
+        lifecycleScope.launch {
+            viewModel.weatherShortInfo.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { weatherShortInfo ->
+                    weatherDayItemAdapter.submitList(weatherShortInfo)
+                }
+        }
+
+        lifecycleScope.launch {
+            viewModel.scrollPositionTitle.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    binding.tvDayWeatherTitle.text = it ?: "오늘"
                 }
         }
 
@@ -179,20 +205,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setWeatherAdapter() {
+        positionMap[TOMORROW_KEY] = 999
+        positionMap[AFTER_TOMORROW_KEY] = 999
         weatherAdapter = WeatherItemAdapter()
-        weatherDayAdapter = WeatherDayItemAdapter()
-//        concatAdapter = ConcatAdapter()
-//        concatAdapter.addAdapter(weatherDayAdapter)
-//        concatAdapter.addAdapter(weatherAdapter)
         binding.rvWeatherInfo.adapter = weatherAdapter
-        binding.rvWeatherDayInfo.adapter = weatherDayAdapter
+        binding.rvWeatherInfo.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
+
+        weatherDayItemAdapter = WeatherDayItemAdapter(positionMap) { position ->
+
+            val lastVisibleItemPosition = binding.rvWeatherDayInfo.layoutManager as LinearLayoutManager
+            val firstPos = lastVisibleItemPosition.findFirstVisibleItemPosition()
+
+            if (positionMap.isNotEmpty()) {
+                if (firstPos >= positionMap[TOMORROW_KEY]!! && firstPos < positionMap[AFTER_TOMORROW_KEY]!!) {
+                    viewModel.scrollPositionTitle.value = "내일"
+                } else if (firstPos >= positionMap[AFTER_TOMORROW_KEY]!!) {
+                    viewModel.scrollPositionTitle.value = "모레"
+                } else {
+                    viewModel.scrollPositionTitle.value = "오늘"
+                }
+            }
+        }
+        binding.rvWeatherDayInfo.adapter = weatherDayItemAdapter
 
     }
 
     private fun isPermissions() {
 
         setPermissionLauncher()
-
         if (ContextCompat.checkSelfPermission(
                 this@MainActivity,
                 Manifest.permission.ACCESS_FINE_LOCATION

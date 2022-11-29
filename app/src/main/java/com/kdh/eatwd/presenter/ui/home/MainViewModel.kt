@@ -8,6 +8,9 @@ import com.kdh.eatwd.data.entity.WeatherInfoResponse
 import com.kdh.eatwd.data.remote.ApiStates
 import com.kdh.eatwd.data.usecase.AirInfoUseCase
 import com.kdh.eatwd.data.usecase.WeatherUseCase
+import com.kdh.eatwd.presenter.util.Constants.AFTER_TOMORROW
+import com.kdh.eatwd.presenter.util.Constants.TOMORROW
+import com.kdh.eatwd.presenter.util.getDayOfWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,16 +26,21 @@ class MainViewModel @Inject constructor(
         MutableStateFlow(null)
     val airInfo = _airInfo.asStateFlow()
 
-//    private var _weatherInfo: MutableStateFlow<List<WeatherInfoResponse.WeatherDetail?>?> = MutableStateFlow(null)
-//    val weatherInfo = _weatherInfo.asStateFlow()
-
     private var _weatherInfo: MutableStateFlow<List<WeatherInfoResponse.WeatherDetail?>?> =
         MutableStateFlow(null)
     val weatherInfo = _weatherInfo.asStateFlow()
 
+    private var _weatherShortInfo: MutableStateFlow<List<WeatherInfoResponse.WeatherDetail?>?> =
+        MutableStateFlow(null)
+    val weatherShortInfo = _weatherShortInfo.asStateFlow()
+
     private val _loadingFlag: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val loadingFlag = _loadingFlag.asStateFlow()
+    
+    var scrollPositionTitle : MutableStateFlow<String?> = MutableStateFlow(null)
 
+    private var dayCount = 0
+    private var tempDay = ""
     fun getAirInfo(lat: Double, log: Double) {
         viewModelScope.launch {
             airInfoUseCase(lat, log).collect { apiState ->
@@ -55,6 +63,8 @@ class MainViewModel @Inject constructor(
                 when (apiState) {
                     is ApiStates.Success -> {
                         _weatherInfo.value = apiState.data.list
+                        _weatherShortInfo.value = weatherItemDivideInfo(apiState.data.list)
+
                         _loadingFlag.value = false
                         Log.d(TAG, "apiState.data.list : ${apiState.data.list}");
                     }
@@ -63,6 +73,30 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun weatherItemDivideInfo(list: List<WeatherInfoResponse.WeatherDetail>): List<WeatherInfoResponse.WeatherDetail> {
+        return list.filterIndexed { index, it ->
+
+            if (index == 0) {
+                tempDay = getDayOfWeek(it.dt_txt.split(" ")[0])
+            }
+
+            if (tempDay == getDayOfWeek(it.dt_txt.split(" ")[0]) && dayCount <= 2) {
+                true
+            } else if (dayCount <= 2) {
+                when (dayCount) {
+                    0 -> it.day_flag = TOMORROW
+                    1 -> it.day_flag = AFTER_TOMORROW
+                }
+                tempDay = getDayOfWeek(it.dt_txt.split(" ")[0])
+                dayCount++
+                true
+            } else {
+                false
+            }
+
         }
     }
 

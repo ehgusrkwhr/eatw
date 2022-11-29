@@ -12,7 +12,7 @@ import java.util.*
 //date util
 fun Date.dateToString(format: String, local: Locale = Locale.getDefault()): String = SimpleDateFormat(format, local).format(this)
 fun currentDate(): Date = Calendar.getInstance().time
-fun getDayOfWeek(date: String) = LocalDate.parse(date).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN)
+fun getDayOfWeek(date: String): String = LocalDate.parse(date).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN)
 
 fun getTimeOfDay(time: String): String {
     val day = if (LocalTime.parse(time).hour < 12) {
@@ -23,6 +23,13 @@ fun getTimeOfDay(time: String): String {
     return App.applicationContext().getString(R.string.today_show_time, day, LocalTime.parse(time).hour)
 }
 
+fun getCurrentTime() : Int{
+    return LocalTime.now().hour
+}
+
+fun getTimeFromDateString(date : String) : Int{
+    return LocalTime.parse(date).hour
+}
 
 
 

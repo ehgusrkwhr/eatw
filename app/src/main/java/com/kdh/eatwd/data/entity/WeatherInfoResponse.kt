@@ -47,7 +47,8 @@ data class WeatherInfoResponse(
         val sys: Sys,
         val visibility: Int,
         val weather: List<Weather>,
-        val wind: Wind
+        val wind: Wind,
+        var day_flag: Int = 0
     ) {
         data class Clouds(
             val all: Int
@@ -80,3 +81,7 @@ data class WeatherInfoResponse(
         )
     }
 }
+
+data class Title(
+    var text : String
+)
