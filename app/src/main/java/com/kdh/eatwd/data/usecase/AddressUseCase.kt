@@ -4,9 +4,8 @@ import com.kdh.eatwd.data.repository.AirInfoRepository
 import com.kdh.eatwd.data.repository.WeatherInfoRepository
 import javax.inject.Inject
 
-class AirInfoUseCase @Inject constructor(
-//    private val repository: AirInfoRepository
+class AddressUseCase @Inject constructor(
     private val repository: WeatherInfoRepository
 ) {
-    suspend operator fun invoke(lat: Double, log: Double) = repository.getAirInfo(lat, log)
+    suspend operator fun invoke(keyword : String) = repository.getSearchAddressInfo(keyword = keyword)
 }

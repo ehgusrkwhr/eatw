@@ -1,6 +1,7 @@
 package com.kdh.eatwd.data.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.kdh.eatwd.data.remote.AddressService
 import com.kdh.eatwd.data.remote.AirStatusService
 import com.kdh.eatwd.data.remote.WeatherService
 import com.wajahatkarim3.imagine.data.remote.ApiResponseCallAdapterFactory
@@ -28,6 +29,10 @@ object DataModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class Type2
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class Type3
 
 
 
@@ -78,6 +83,23 @@ object DataModule {
 
     @Singleton
     @Provides
+    @Type3
+    fun provideAddressRetrofitClient(): Retrofit {
+        val okhttpClient = OkHttpClient.Builder()
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        okhttpClient.addInterceptor(loggingInterceptor)
+
+        return Retrofit.Builder()
+            .baseUrl(AddressService.BASE_URL)
+            .client(okhttpClient.build())
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(ApiResponseCallAdapterFactory())
+            .build()
+    }
+
+    @Singleton
+    @Provides
     fun provideAirApiService(@Type1 retrofit: Retrofit): AirStatusService {
         return retrofit.create(AirStatusService::class.java)
     }
@@ -86,6 +108,12 @@ object DataModule {
     @Provides
     fun provideWeatherApiService(@Type2 retrofit: Retrofit): WeatherService {
         return retrofit.create(WeatherService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAddressService(@Type3 retrofit: Retrofit): AddressService {
+        return retrofit.create(AddressService::class.java)
     }
 
 }

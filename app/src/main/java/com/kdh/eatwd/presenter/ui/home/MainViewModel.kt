@@ -36,8 +36,8 @@ class MainViewModel @Inject constructor(
 
     private val _loadingFlag: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val loadingFlag = _loadingFlag.asStateFlow()
-    
-    var scrollPositionTitle : MutableStateFlow<String?> = MutableStateFlow(null)
+
+    var scrollPositionTitle: MutableStateFlow<String?> = MutableStateFlow(null)
 
     private var dayCount = 0
     private var tempDay = ""
@@ -78,19 +78,18 @@ class MainViewModel @Inject constructor(
 
     private fun weatherItemDivideInfo(list: List<WeatherInfoResponse.WeatherDetail>): List<WeatherInfoResponse.WeatherDetail> {
         return list.filterIndexed { index, it ->
-
+            val checkDay = getDayOfWeek(it.dt_txt.split(" ")[0])
             if (index == 0) {
-                tempDay = getDayOfWeek(it.dt_txt.split(" ")[0])
+                tempDay = checkDay
             }
-
-            if (tempDay == getDayOfWeek(it.dt_txt.split(" ")[0]) && dayCount <= 2) {
+            if (tempDay == checkDay && dayCount <= 2) {
                 true
             } else if (dayCount <= 2) {
                 when (dayCount) {
                     0 -> it.day_flag = TOMORROW
                     1 -> it.day_flag = AFTER_TOMORROW
                 }
-                tempDay = getDayOfWeek(it.dt_txt.split(" ")[0])
+                tempDay = checkDay
                 dayCount++
                 true
             } else {

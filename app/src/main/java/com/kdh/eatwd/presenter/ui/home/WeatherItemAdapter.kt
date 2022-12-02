@@ -26,8 +26,7 @@ class WeatherItemAdapter :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherItemViewHolder {
-        val binding =
-            ItemDaysInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemDaysInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return WeatherItemViewHolder(binding)
     }
 
@@ -38,19 +37,15 @@ class WeatherItemAdapter :
     inner class WeatherItemViewHolder(private val binding: ItemDaysInfoBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(weatherInfoResponse: WeatherInfoResponse.WeatherDetail) {
-//            binding.tvDayTitle.text = weatherInfoResponse.dt_txt
             binding.tvDayTitle.text = getDayOfWeek(weatherInfoResponse.dt_txt.split(" ")[0])
-            binding.tvMinTemperature.text =
-                convertKelvinToCelsius(weatherInfoResponse.main.temp_min).toString()
-            binding.tvMaxTemperature.text =
-                convertKelvinToCelsius(weatherInfoResponse.main.temp_max).toString()
+            binding.tvMinTemperature.text = convertKelvinToCelsius(weatherInfoResponse.main.temp_min).toString()
+            binding.tvMaxTemperature.text = convertKelvinToCelsius(weatherInfoResponse.main.temp_max).toString()
             Glide.with(mContext).load(
                 binding.ivDayImage.context.getString(
                     R.string.weather_middle_image_url,
                     weatherInfoResponse.weather[0].icon
                 )
             ).into(binding.ivDayImage)
-
         }
     }
 }

@@ -1,8 +1,10 @@
 package com.kdh.eatwd.presenter.ui.home
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,13 +26,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kdh.eatwd.R
 import com.kdh.eatwd.databinding.ActivityMainBinding
+import com.kdh.eatwd.presenter.ui.custom.CustomCaptureDialog
 import com.kdh.eatwd.presenter.util.Constants.AFTER_TOMORROW_KEY
 import com.kdh.eatwd.presenter.util.Constants.TOMORROW_KEY
 import com.kdh.eatwd.presenter.util.LocationUtil
+import com.kdh.eatwd.presenter.util.captureScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 @AndroidEntryPoint
@@ -54,7 +62,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var weatherDayTitleAdapter: WeatherDayTitleAdapter
     private lateinit var concatAdapter: ConcatAdapter
 
-        private var positionMap = mutableMapOf<String,Int>()
+    private var positionMap = mutableMapOf<String, Int>()
 //    private var positionMap: MutableMap<String, Int> by lazy {
 //        positionMap.put(TOMORROW_KEY, 0)
 //        positionMap.put(AFTER_TOMORROW_KEY, 0)
@@ -66,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         isPermissions()
-//        setWeatherAdapter()
         initView()
         setObserver()
         setEvent()
@@ -78,6 +85,8 @@ class MainActivity : AppCompatActivity() {
         initProgressBar()
         initLocation()
         setWeatherAdapter()
+        onCaptureDialog()
+        searchAddress()
 
     }
 
@@ -218,11 +227,11 @@ class MainActivity : AppCompatActivity() {
 
             if (positionMap.isNotEmpty()) {
                 if (firstPos >= positionMap[TOMORROW_KEY]!! && firstPos < positionMap[AFTER_TOMORROW_KEY]!!) {
-                    viewModel.scrollPositionTitle.value = "내일"
+                    viewModel.scrollPositionTitle.value = resources.getString(R.string.weather_tomorrow)
                 } else if (firstPos >= positionMap[AFTER_TOMORROW_KEY]!!) {
-                    viewModel.scrollPositionTitle.value = "모레"
+                    viewModel.scrollPositionTitle.value = resources.getString(R.string.weather_after_tomorrow)
                 } else {
-                    viewModel.scrollPositionTitle.value = "오늘"
+                    viewModel.scrollPositionTitle.value = resources.getString(R.string.weather_today)
                 }
             }
         }
@@ -231,7 +240,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isPermissions() {
-
         setPermissionLauncher()
         if (ContextCompat.checkSelfPermission(
                 this@MainActivity,
@@ -265,7 +273,6 @@ class MainActivity : AppCompatActivity() {
                             if (shouldShowRequestPermissionRationale(permission)) "DENIED" else "EXPLAINED"
                         }
                         map["DENIED"]?.let {
-                            Log.d("dodo55 ", "한번거부");
                             ActivityCompat.requestPermissions(
                                 this@MainActivity,
                                 LOCATION_PERMISSON,
@@ -273,7 +280,6 @@ class MainActivity : AppCompatActivity() {
                             )
                         }
                         map["EXPLAINED"]?.let {
-                            Log.d("dodo55 ", "두번거부");
                             ActivityCompat.requestPermissions(
                                 this@MainActivity,
                                 LOCATION_PERMISSON,
@@ -289,5 +295,38 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun onCaptureDialog() {
+        binding.ivShareSns.setOnClickListener {
+            val screen = captureScreen()
+            val customCaptureDialog = CustomCaptureDialog(this@MainActivity, screen) { fileName ->
+                val intent = Intent(Intent.ACTION_SEND)
+                val fileUri: Uri? = FileProvider.getUriForFile(this, "com.kdh.eatwd.fileprovider", File(fileName))
+                fileUri?.let { uri ->
+                    intent.apply {
+                        putExtra(Intent.EXTRA_STREAM, uri)
+//                        putExtra(Intent.EXTRA_TEXT,"https://play.google.com/store/apps/details?id=blue.soo.rainsounds")
+                        addCategory(Intent.CATEGORY_DEFAULT)
+                        type = "image/*"
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        startActivity(this)
+                    }
+                }
+            }
+            customCaptureDialog.show()
+        }
+    }
+
+    private fun searchAddress(){
+        binding.ivAddressSerach.setOnClickListener {
+            val bottomSheetView = layoutInflater.inflate(R.layout.dialog_bottom_address_search,null)
+
+            bottomSheetView.height
+
+            val dialog = BottomSheetDialog(this)
+            dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            dialog.setContentView(bottomSheetView)
+            dialog.show()
+        }
+    }
 
 }

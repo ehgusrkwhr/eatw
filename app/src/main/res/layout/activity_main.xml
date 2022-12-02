@@ -218,11 +218,6 @@
         app:contentInsetStart="0dp"
         app:layout_scrollFlags="scroll|enterAlways">
 
-        <ImageView
-          android:layout_width="50dp"
-          android:layout_height="50dp"
-          android:layout_gravity="end"
-          android:src="@drawable/ic_launcher_foreground" />
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
@@ -232,6 +227,24 @@
           android:maxLines="2"
           android:text="테스트"
           android:textSize="16dp" />
+
+        <ImageView
+          android:id="@+id/iv_share_sns"
+          android:layout_width="50dp"
+          android:layout_height="50dp"
+          android:layout_gravity="end"
+          android:paddingEnd="10dp"
+          android:paddingStart="10dp"
+          android:src="@drawable/ic_share_image" />
+
+        <ImageView
+          android:id="@+id/iv_address_serach"
+          android:layout_width="50dp"
+          android:layout_height="50dp"
+          android:layout_gravity="end"
+          android:paddingEnd="10dp"
+          android:paddingStart="10dp"
+          android:src="@drawable/ic_plus" />
 
       </androidx.appcompat.widget.Toolbar>
 
