@@ -31,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kdh.eatwd.R
 import com.kdh.eatwd.databinding.ActivityMainBinding
 import com.kdh.eatwd.presenter.ui.custom.CustomCaptureDialog
+import com.kdh.eatwd.presenter.ui.search.AddressSearchBottomSheet
 import com.kdh.eatwd.presenter.util.Constants.AFTER_TOMORROW_KEY
 import com.kdh.eatwd.presenter.util.Constants.TOMORROW_KEY
 import com.kdh.eatwd.presenter.util.LocationUtil
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSION_CODE = 100
     private var requestPermissionLauncher: ActivityResultLauncher<Array<String>>? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
+
+    lateinit var addressSearchBottomSheet : AddressSearchBottomSheet
     lateinit var locationUtil: LocationUtil
 
     // 위도와 경도를 저장
@@ -63,6 +66,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var concatAdapter: ConcatAdapter
 
     private var positionMap = mutableMapOf<String, Int>()
+
+
+
 //    private var positionMap: MutableMap<String, Int> by lazy {
 //        positionMap.put(TOMORROW_KEY, 0)
 //        positionMap.put(AFTER_TOMORROW_KEY, 0)
@@ -318,14 +324,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun searchAddress(){
         binding.ivAddressSerach.setOnClickListener {
-            val bottomSheetView = layoutInflater.inflate(R.layout.dialog_bottom_address_search,null)
-
-            bottomSheetView.height
-
-            val dialog = BottomSheetDialog(this)
-            dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
-            dialog.setContentView(bottomSheetView)
-            dialog.show()
+            addressSearchBottomSheet = AddressSearchBottomSheet()
+            addressSearchBottomSheet.show(supportFragmentManager,addressSearchBottomSheet.tag)
+//            val bottomSheetView = layoutInflater.inflate(R.layout.dialog_bottom_address_search,null)
+//            val dialog = BottomSheetDialog(this)
+//            dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+//            dialog.setContentView(bottomSheetView)
+//            dialog.show()
         }
     }
 

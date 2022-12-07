@@ -36,6 +36,7 @@ class WeatherItemAdapter :
 
     inner class WeatherItemViewHolder(private val binding: ItemDaysInfoBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(weatherInfoResponse: WeatherInfoResponse.WeatherDetail) {
             binding.tvDayTitle.text = getDayOfWeek(weatherInfoResponse.dt_txt.split(" ")[0])
             binding.tvMinTemperature.text = convertKelvinToCelsius(weatherInfoResponse.main.temp_min).toString()
@@ -46,6 +47,7 @@ class WeatherItemAdapter :
                     weatherInfoResponse.weather[0].icon
                 )
             ).into(binding.ivDayImage)
+
         }
     }
 }

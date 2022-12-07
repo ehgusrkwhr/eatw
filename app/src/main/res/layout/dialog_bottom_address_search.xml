@@ -4,28 +4,84 @@
   android:id="@+id/layout_bottom_sheet_address_search"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  app:behavior_hideable="true"
   app:behavior_draggable="true"
+  app:behavior_hideable="true"
   app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-  <EditText
-    android:id="@+id/et_address_search"
+  <androidx.cardview.widget.CardView
+    android:id="@+id/view_address_search"
+    android:layout_margin="12dp"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
+    android:background="@color/pink_red"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="8dp"
     app:layout_constraintBottom_toTopOf="@+id/tv_address_search_info"
-    />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal">
+
+      <ImageView
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:layout_marginStart="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_gnb_back"
+
+        />
+      <EditText
+        android:layout_gravity="center"
+        android:id="@+id/et_address_search"
+        android:maxLines="1"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:layout_weight="8"
+        android:textSize="18dp"
+        android:hint="@string/address_search_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+
+        />
+
+      <ImageView
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_delete"
+
+        />
+
+    </LinearLayout>
+
+
+  </androidx.cardview.widget.CardView>
+
+
   <androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/tv_address_search_info"
+    android:id="@+id/rv_address_search_info"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="10dp"
     android:layout_width="0dp"
     android:layout_height="0dp"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/et_address_search"
     app:layout_constraintBottom_toBottomOf="parent"
-    />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/view_address_search" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

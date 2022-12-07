@@ -1,6 +1,5 @@
 package com.kdh.eatwd.data.di
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.kdh.eatwd.data.remote.AddressService
 import com.kdh.eatwd.data.remote.AirStatusService
 import com.kdh.eatwd.data.remote.WeatherService
@@ -9,8 +8,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -34,11 +31,9 @@ object DataModule {
     @Retention(AnnotationRetention.BINARY)
     annotation class Type3
 
-
-
     @Singleton
     @Provides
-    fun provideOkHttpClient() : OkHttpClient{
+    fun provideOkhttpClient(): OkHttpClient {
         val okhttpClient = OkHttpClient.Builder()
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -49,15 +44,11 @@ object DataModule {
     @Singleton
     @Provides
     @Type1
-    fun provideAirStatusRetrofitClient(): Retrofit {
-        val okhttpClient = OkHttpClient.Builder()
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        okhttpClient.addInterceptor(loggingInterceptor)
+    fun provideAirStatusRetrofitClient(okHttpClient: OkHttpClient): Retrofit {
 
         return Retrofit.Builder()
             .baseUrl(AirStatusService.BASE_URL)
-            .client(okhttpClient.build())
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
 //            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory())
@@ -67,15 +58,11 @@ object DataModule {
     @Singleton
     @Provides
     @Type2
-    fun provideWeatherInfoRetrofitClient(): Retrofit {
-        val okhttpClient = OkHttpClient.Builder()
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        okhttpClient.addInterceptor(loggingInterceptor)
+    fun provideWeatherInfoRetrofitClient(okHttpClient: OkHttpClient): Retrofit {
 
         return Retrofit.Builder()
             .baseUrl(WeatherService.BASE_URL)
-            .client(okhttpClient.build())
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(ApiResponseCallAdapterFactory())
             .build()
@@ -84,15 +71,11 @@ object DataModule {
     @Singleton
     @Provides
     @Type3
-    fun provideAddressRetrofitClient(): Retrofit {
-        val okhttpClient = OkHttpClient.Builder()
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        okhttpClient.addInterceptor(loggingInterceptor)
+    fun provideAddressRetrofitClient(okHttpClient: OkHttpClient): Retrofit {
 
         return Retrofit.Builder()
             .baseUrl(AddressService.BASE_URL)
-            .client(okhttpClient.build())
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(ApiResponseCallAdapterFactory())
             .build()

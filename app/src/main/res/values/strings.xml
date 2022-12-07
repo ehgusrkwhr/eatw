@@ -10,4 +10,5 @@
   <string name="weather_small_image_url">http://openweathermap.org/img/wn/%s@2x.png</string>
   <string name="weather_middle_image_url">http://openweathermap.org/img/wn/%s@4x.png</string>
   <string name="today_show_time">%s %d시</string>
+  <string name="address_search_hint">동/읍/면 을 입력해주세요.</string>
 </resources>
