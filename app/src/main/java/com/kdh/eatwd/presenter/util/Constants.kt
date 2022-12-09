@@ -8,4 +8,7 @@ object Constants {
 
     const val TOMORROW_KEY = "TOMORROW"
     const val AFTER_TOMORROW_KEY = "AFTER_TOMORROW"
+
+    const val PAGING_SIZE = 20
+    const val PAGE_START = 1
 }

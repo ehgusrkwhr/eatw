@@ -29,9 +29,13 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindWeatherDataSource(weatherDataSourceImpl: WeatherDataSourceImpl): WeatherDataSource
 
+//    @Binds
+//    @Singleton
+//    abstract fun bindAddressDataSource(addressDataSourceImpl: AddressDataSourceImpl): AddressDataSource
+
     @Binds
     @Singleton
-    abstract fun bindAddressDataSource(addressDataSourceImpl: AddressDataSourceImpl): AddressDataSource
+    abstract fun bindAddressPagingDataSource(addressDataPaging: AddressDataPaging) : AddressDataPaging
 
 //    @Binds
 //    @Singleton

@@ -3,6 +3,8 @@ package com.kdh.eatwd.presenter.ui.search
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.kdh.eatwd.data.entity.AddressResponse
 import com.kdh.eatwd.data.remote.ApiStates
 import com.kdh.eatwd.data.usecase.AddressUseCase
@@ -17,23 +19,17 @@ class AddressSearchViewModel @Inject constructor(
     private val addressUseCase: AddressUseCase
 ) : ViewModel() {
 
-    private val _addressInfo: MutableStateFlow<List<AddressResponse.Results.Juso>?> = MutableStateFlow(null)
+    private val _addressInfo: MutableStateFlow<PagingData<AddressResponse.Results.Juso>?> = MutableStateFlow(null)
     var addressInfo = _addressInfo.asStateFlow()
 
     fun searchAddress(juso: String) {
 
         viewModelScope.launch {
-            addressUseCase(juso).collect { state ->
-                when (state) {
-                    is ApiStates.Success -> {
-                        _addressInfo.value = state.data.results.juso
-                        Log.d("dodo66 ", " searchAddress Api 성공이연")
-                    }
-                    is ApiStates.Error -> {
-                        Log.d("dodo66 ", " searchAddress Api 오류")
-                    }
-                    else -> {}
-                }
+            addressUseCase(juso)
+                .cachedIn(viewModelScope)
+                .collect {
+                    Log.d("dodo66 ","searchAddress ${it}")
+                _addressInfo.value = it
             }
         }
 

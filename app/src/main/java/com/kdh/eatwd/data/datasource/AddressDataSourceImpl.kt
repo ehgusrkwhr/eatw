@@ -8,35 +8,37 @@ import kotlinx.coroutines.flow.flow
 import java.io.IOException
 import javax.inject.Inject
 
-class AddressDataSourceImpl @Inject constructor(
-    private val addressService: AddressService
-) : AddressDataSource {
+//class AddressDataSourceImpl @Inject constructor(
+//    private val addressService: AddressService
+//) : AddressDataSource {
 
-    override suspend fun getSearchAddressInfo(keyword: String): Flow<ApiStates<AddressResponse>> {
+ //   override suspend fun getSearchAddressInfo(keyword: String): Flow<ApiStates<AddressResponse>> {
 
-        return flow {
-            addressService.getAddressData(
-                keyword,
-                "json",
-                AddressService.API_KEY
-            ).apply {
-                this.onSuccessSuspend {
-                    data?.let {
-                        emit(ApiStates.success(it))
-                    }
-                }
-            }.onErrorSuspend {
-                emit(ApiStates.error(message()))
-            }.onExceptionSuspend {
-                if (this.exception is IOException) {
-                    emit(ApiStates.error(StringUtils.networkErrorMessage()))
-                } else {
-                    emit(ApiStates.error(StringUtils.etcError()))
-                }
-            }
-        }
+//        return flow {
+//            addressService.getAddressData(
+//                keyword,
+//                "json",
+//                AddressService.API_KEY,
+//                1,
+//                20
+//            ).apply {
+//                this.onSuccessSuspend {
+//                    data?.let {
+//                        emit(ApiStates.success(it))
+//                    }
+//                }
+//            }.onErrorSuspend {
+//                emit(ApiStates.error(message()))
+//            }.onExceptionSuspend {
+//                if (this.exception is IOException) {
+//                    emit(ApiStates.error(StringUtils.networkErrorMessage()))
+//                } else {
+//                    emit(ApiStates.error(StringUtils.etcError()))
+//                }
+//            }
+//        }
 
 
-    }
+  //  }
 
-}
+//}

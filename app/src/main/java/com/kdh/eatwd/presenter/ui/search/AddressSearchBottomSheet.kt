@@ -17,11 +17,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kdh.eatwd.databinding.DialogBottomAddressSearchBinding
 import com.kdh.eatwd.presenter.util.textChangesToFlow
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
@@ -29,11 +29,13 @@ class AddressSearchBottomSheet : BottomSheetDialogFragment() {
 
 
     lateinit var binding: DialogBottomAddressSearchBinding
-    private val viewModel : AddressSearchViewModel by viewModels()
+    private val viewModel: AddressSearchViewModel by viewModels()
     private var textCoroutineJob: Job = Job()
     private val textCoroutineContext: CoroutineContext
         get() = Dispatchers.IO + textCoroutineJob
-    private lateinit var addressSearchAdapter : AddressSearchAdapter
+
+    //    private lateinit var addressSearchAdapter: AddressSearchAdapter
+    private lateinit var addressSearchPagingAdapter: AddressSearchPagingAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.d("dodo55 ", " getScreenHeight onCreateView")
@@ -88,34 +90,34 @@ class AddressSearchBottomSheet : BottomSheetDialogFragment() {
 
 
     private fun initAddressSearchEvent() {
-        Log.d("dodo66 ","initAddressSearchEvent  현재스레드 : ${Thread.currentThread()}")
         lifecycleScope.launch(context = textCoroutineContext) {
             val editFlow = binding.etAddressSearch.textChangesToFlow()
             editFlow
                 .debounce(1000)
                 .filter { it?.length!! > 1 }
                 .onEach {
-                    Log.d("dodo66 ","호출호출api : ${it} 현재스레드 : ${Thread.currentThread()}")
                     // Api호출
                     viewModel.searchAddress(it.toString())
 
                 }
                 .launchIn(this)
-
         }
     }
 
-    private fun initAddressInfoObserving(){
-        lifecycleScope.launch{
-            viewModel.addressInfo.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect{ juso ->
-                addressSearchAdapter.submitList(juso)
+    private fun initAddressInfoObserving() {
+        lifecycleScope.launch {
+            viewModel.addressInfo.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collectLatest { juso ->
+//                addressSearchAdapter.submitList(juso)
+                juso?.let {
+                    addressSearchPagingAdapter.submitData(it)
+                }
             }
         }
     }
 
-    private fun initAdapter(){
-        addressSearchAdapter = AddressSearchAdapter()
-        binding.rvAddressSearchInfo.adapter = addressSearchAdapter
+    private fun initAdapter() {
+        addressSearchPagingAdapter = AddressSearchPagingAdapter()
+        binding.rvAddressSearchInfo.adapter = addressSearchPagingAdapter
         binding.rvAddressSearchInfo.layoutManager = LinearLayoutManager(context)
     }
 
